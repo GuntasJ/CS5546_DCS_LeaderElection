@@ -1,17 +1,28 @@
 package org.jammu;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import org.jammu.leaderelection.Simulator;
+import org.jammu.leaderelection.bully.BullyNode;
+import org.jammu.leaderelection.ringbased.RingNode;
+
+import java.util.List;
+import java.util.stream.IntStream;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        Simulator simulator = new Simulator();
+        List<BullyNode> nodes = IntStream.range(0, 4)
+                .mapToObj(i -> new BullyNode(i, simulator))
+                .toList();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        nodes.forEach(node -> nodes.stream()
+                .filter(n -> node.getId() != n.getId())
+                .forEach(n -> node.getGroupNodes().add(n))
+        );
+
+        nodes.getLast().fail();
+        nodes.getFirst().fail();
+        nodes.get(1).startElection();
+
+        simulator.run();
     }
 }

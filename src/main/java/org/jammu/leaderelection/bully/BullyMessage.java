@@ -1,4 +1,7 @@
 package org.jammu.leaderelection.bully;
 
-public interface BullyMessage {
+public sealed interface BullyMessage {
+    record Election(BullyNode source) implements BullyMessage{}
+    record Answer() implements BullyMessage{}
+    record Coordinator(BullyNode source) implements BullyMessage{}
 }
