@@ -30,10 +30,6 @@ public class BullyNode {
         return id;
     }
 
-    public void addGroupNode(BullyNode node) {
-        groupNodes.add(node);
-    }
-
     public void fail() {
         isAlive = false;
         if (this == coordinator) {
@@ -42,6 +38,10 @@ public class BullyNode {
     }
     public void recover() {
         isAlive = true;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
     }
 
     public void startElection() {
@@ -62,6 +62,9 @@ public class BullyNode {
                 simulator.clearEvents();
                 System.out.println("[DEBUG]: Coordinator is " + this);
                 System.out.println("[DEBUG]: Time is " + simulator.getCurrentTime().toMillis() + "ms");
+                groupNodes.stream()
+                        .filter(BullyNode::isAlive)
+                        .forEach(node -> sendMessage(node, new BullyMessage.Coordinator(this)));
             }
         }));
     }
