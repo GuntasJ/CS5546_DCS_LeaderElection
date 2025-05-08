@@ -1,21 +1,58 @@
-package org.jammu.leaderelection.paxos;
+package org.eiselemillerjammu.leaderelection.paxos;
 
-import org.jammu.leaderelection.AbstractNode;
-import org.jammu.leaderelection.Event;
-import org.jammu.leaderelection.Simulator;
+import org.eiselemillerjammu.leaderelection.AbstractNode;
+import org.eiselemillerjammu.leaderelection.Event;
+import org.eiselemillerjammu.leaderelection.Simulator;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A class that represents a paxos node in the paxos algorithm
+ */
 public final class PaxosNode extends AbstractNode<PaxosMessage> {
+
+    /**
+     * The greatest round identifier seen so far
+     */
     private RoundIdentifier greatestRoundIdentifier;
+
+    /**
+     * An accepted log which keeps track of accepted leaders.
+     * This log is not ever queried; however, it is used in
+     * the consensus portion of this algorithm.
+     * This implementation only is concerned with the leader election
+     * portion, and the log is only modified, not queried, in this phase
+     */
     private final Map<RoundIdentifier, PaxosNode> acceptedLog;
+
+    /**
+     * How many {@link org.eiselemillerjammu.leaderelection.paxos.PaxosMessage.Accepted} messages this node has received
+     */
     private int acceptedReceived;
+
+    /**
+     * True if this node can send another {@link org.eiselemillerjammu.leaderelection.paxos.PaxosMessage.Accept} message,
+     * false otherwise
+     */
     private boolean canSendAccept;
+
+    /**
+     * How many {@link org.eiselemillerjammu.leaderelection.paxos.PaxosMessage.Promise} messages this node has received
+     */
     private int promisesReceived;
+
+    /**
+     * True if this node is waiting for a response, false otherwise
+     */
     private boolean waiting;
 
+    /**
+     * Initialize basic field values
+     * @param id The unique id of the node
+     * @param simulator The simulator reference of the node
+     */
     public PaxosNode(int id, Simulator simulator) {
         super(id, simulator);
         isAlive = true;
@@ -75,6 +112,7 @@ public final class PaxosNode extends AbstractNode<PaxosMessage> {
                     if (acceptedReceived > groupNodes.size() / 2) {
                         System.out.println("[DEBUG]: " + this + " has elected " + acceptedNode);
                         coordinator = acceptedNode;
+                        acceptedReceived = Integer.MIN_VALUE;
                     }
                 }
             }

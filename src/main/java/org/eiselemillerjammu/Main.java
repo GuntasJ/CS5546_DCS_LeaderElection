@@ -1,8 +1,7 @@
-package org.jammu;
+package org.eiselemillerjammu;
 
-import org.jammu.leaderelection.Simulator;
-import org.jammu.leaderelection.paxos.PaxosNode;
-import org.jammu.leaderelection.raft.RaftNode;
+import org.eiselemillerjammu.leaderelection.Simulator;
+import org.eiselemillerjammu.leaderelection.raft.RaftNode;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -15,7 +14,7 @@ public class Main {
                 .toList();
 
         nodes.forEach(node -> nodes
-                .forEach(n -> node.getGroupNodes().add(n))
+                .forEach(n -> node.groupNodes().add(n))
         );
 
         nodes.getFirst().startElection();
