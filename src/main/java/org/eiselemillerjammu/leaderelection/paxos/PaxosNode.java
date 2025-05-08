@@ -14,6 +14,11 @@ import java.util.Map;
 public final class PaxosNode extends AbstractNode<PaxosMessage> {
 
     /**
+     * The duration to which a node will wait before hearing an accept message
+     */
+    private static final Duration TIMEOUT = Duration.ofMillis(1_000);
+
+    /**
      * The greatest round identifier seen so far
      */
     private RoundIdentifier greatestRoundIdentifier;
@@ -83,7 +88,7 @@ public final class PaxosNode extends AbstractNode<PaxosMessage> {
                     greatestRoundIdentifier = roundIdentifier;
                     sendMessage(source, new PaxosMessage.Promise(roundIdentifier));
                     waiting = true;
-                    simulator.addEvent(new Event(simulator.getCurrentTime().plus(Duration.ofMillis(1_000)), () -> {
+                    simulator.addEvent(new Event(simulator.getCurrentTime().plus(TIMEOUT), () -> {
                         if (waiting) {
                             greatestRoundIdentifier = new RoundIdentifier(greatestRoundIdentifier.greatestSoFar() + 1, id);
                             startElection();
