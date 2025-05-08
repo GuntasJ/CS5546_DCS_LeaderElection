@@ -1,6 +1,8 @@
 package org.jammu.leaderelection.ringbased;
 
-public sealed interface RingMessage {
+import org.jammu.leaderelection.Message;
+
+public sealed interface RingMessage extends Message {
 
     record Election(int nominatedId) implements RingMessage{}
 
