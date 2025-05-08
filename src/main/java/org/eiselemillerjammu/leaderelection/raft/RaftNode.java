@@ -92,30 +92,31 @@ public final class RaftNode extends AbstractNode<RaftMessage> {
 
     @Override
     public void receiveMessage(RaftMessage message) {
-        if (isAlive) {
-            switch (message) {
-                case RaftMessage.NotifyResult(var leader) -> {
-                    coordinator = leader;
-                    waitForHeartbeats();
-                }
-                case RaftMessage.RequestVote(var electionTerm, var source) -> {
-                    if (term < electionTerm) {
-                        term = electionTerm;
-                        sendMessage(source, new RaftMessage.Vote());
-                    }
-                }
-                case RaftMessage.Vote() -> {
-                    votes++;
-                    if (!wonElection && votes >= groupNodes.size() / 2 - 1) {
-                        broadcastOthers(new RaftMessage.NotifyResult(this));
-                        coordinator = this;
-                        System.out.println("[DEBUG]: " + this + " won the election");
-                        wonElection = true;
-                        //sendHeartBeats();
-                    }
-                }
-                case RaftMessage.Heartbeat() -> receivedHeartbeat = true;
+        if (!isAlive) {
+            return;
+        }
+        switch (message) {
+            case RaftMessage.NotifyResult(var leader) -> {
+                coordinator = leader;
+                waitForHeartbeats();
             }
+            case RaftMessage.RequestVote(var electionTerm, var source) -> {
+                if (term < electionTerm) {
+                    term = electionTerm;
+                    sendMessage(source, new RaftMessage.Vote());
+                }
+            }
+            case RaftMessage.Vote() -> {
+                votes++;
+                if (!wonElection && votes >= groupNodes.size() / 2 - 1) {
+                    broadcastOthers(new RaftMessage.NotifyResult(this));
+                    coordinator = this;
+                    System.out.println("[DEBUG]: " + this + " won the election");
+                    wonElection = true;
+                    //sendHeartBeats();
+                }
+            }
+            case RaftMessage.Heartbeat() -> receivedHeartbeat = true;
         }
     }
 }

@@ -73,47 +73,48 @@ public final class PaxosNode extends AbstractNode<PaxosMessage> {
 
     @Override
     public void receiveMessage(PaxosMessage message) {
-        if (isAlive) {
-            switch (message) {
-                case PaxosMessage.Prepare(var roundIdentifier, var source) -> {
-                    if (roundIdentifier.compareTo(greatestRoundIdentifier) > 0) {
-                        greatestRoundIdentifier = roundIdentifier;
-                        sendMessage(source, new PaxosMessage.Promise(roundIdentifier));
+        if (!isAlive) {
+            return;
+        }
 
-                        waiting = true;
-                        simulator.addEvent(new Event(simulator.getCurrentTime().plus(Duration.ofMillis(1_000)), () -> {
-                            if (waiting) {
-                                greatestRoundIdentifier = new RoundIdentifier(greatestRoundIdentifier.greatestSoFar() + 1, id);
-                                startElection();
-                            }
-                        }));
-                    }
+        switch (message) {
+            case PaxosMessage.Prepare(var roundIdentifier, var source) -> {
+                if (roundIdentifier.compareTo(greatestRoundIdentifier) > 0) {
+                    greatestRoundIdentifier = roundIdentifier;
+                    sendMessage(source, new PaxosMessage.Promise(roundIdentifier));
+                    waiting = true;
+                    simulator.addEvent(new Event(simulator.getCurrentTime().plus(Duration.ofMillis(1_000)), () -> {
+                        if (waiting) {
+                            greatestRoundIdentifier = new RoundIdentifier(greatestRoundIdentifier.greatestSoFar() + 1, id);
+                            startElection();
+                        }
+                    }));
                 }
+            }
 
-                case PaxosMessage.Promise(var roundIdentifier) -> {
-                    promisesReceived++;
-                    if (canSendAccept && promisesReceived > groupNodes.size() / 2) {
-                        broadcastOthers(new PaxosMessage.Accept(roundIdentifier, this));
-                        canSendAccept = false;
-                    }
+            case PaxosMessage.Promise(var roundIdentifier) -> {
+                promisesReceived++;
+                if (canSendAccept && promisesReceived > groupNodes.size() / 2) {
+                    broadcastOthers(new PaxosMessage.Accept(roundIdentifier, this));
+                    canSendAccept = false;
                 }
+            }
 
-                case PaxosMessage.Accept(var roundIdentifier, var proposedNode) -> {
-                    waiting = false;
-                    if (greatestRoundIdentifier.equals(roundIdentifier)) {
-                        acceptedLog.put(roundIdentifier, proposedNode);
-                        coordinator = proposedNode;
-                        broadcastOthers(new PaxosMessage.Accepted(proposedNode));
-                    }
+            case PaxosMessage.Accept(var roundIdentifier, var proposedNode) -> {
+                waiting = false;
+                if (greatestRoundIdentifier.equals(roundIdentifier)) {
+                    acceptedLog.put(roundIdentifier, proposedNode);
+                    coordinator = proposedNode;
+                    broadcastOthers(new PaxosMessage.Accepted(proposedNode));
                 }
+            }
 
-                case PaxosMessage.Accepted(var acceptedNode) -> {
-                    acceptedReceived++;
-                    if (acceptedReceived > groupNodes.size() / 2) {
-                        System.out.println("[DEBUG]: " + this + " has elected " + acceptedNode);
-                        coordinator = acceptedNode;
-                        acceptedReceived = Integer.MIN_VALUE;
-                    }
+            case PaxosMessage.Accepted(var acceptedNode) -> {
+                acceptedReceived++;
+                if (acceptedReceived > groupNodes.size() / 2) {
+                    System.out.println("[DEBUG]: " + this + " has elected " + acceptedNode);
+                    coordinator = acceptedNode;
+                    acceptedReceived = Integer.MIN_VALUE;
                 }
             }
         }
