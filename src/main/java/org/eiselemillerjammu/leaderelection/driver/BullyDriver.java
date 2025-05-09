@@ -3,6 +3,8 @@ package org.eiselemillerjammu.leaderelection.driver;
 import org.eiselemillerjammu.leaderelection.Simulator;
 import org.eiselemillerjammu.leaderelection.bully.BullyNode;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -21,11 +23,21 @@ public final class BullyDriver {
 
         assignGroupNodes(nodes);
 
+        for (int i = 0; i < 1000; i++) {
+            nodes.getLast().fail();
+            nodes.getFirst().startElection();
+            simulator.run();
+        }
+
+        Duration time = simulator.getCurrentTime();
+        long start = Instant.now().getNano();
         nodes.getLast().fail();
         nodes.getFirst().startElection();
-
-
         simulator.run();
+        long end = Instant.now().getNano();
+
+        System.out.println("Benchmark: Took " + (end - start) + " ns");
+        System.out.println("Benchmark: Took " + (simulator.getCurrentTime().minus(time).toMillis()) + " ms (simulation)");
     }
 
     private static void assignGroupNodes(List<BullyNode> nodes) {

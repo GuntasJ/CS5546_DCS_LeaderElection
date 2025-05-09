@@ -35,8 +35,8 @@ public final class BullyNode extends AbstractNode<BullyMessage> {
         simulator.addEvent(new Event(simulator.getCurrentTime().plus(TIMEOUT), () -> {
             if (isWaiting) {
                 simulator.clearEvents();
-                System.out.println("[DEBUG]: Coordinator is " + this);
-                System.out.println("[DEBUG]: Time is " + simulator.getCurrentTime().toMillis() + "ms");
+//                System.out.println("[DEBUG]: Coordinator is " + this);
+//                System.out.println("[DEBUG]: Time is " + simulator.getCurrentTime().toMillis() + "ms");
                 groupNodes.forEach(node -> sendMessage(node, new BullyMessage.Coordinator(this)));
             }
         }));

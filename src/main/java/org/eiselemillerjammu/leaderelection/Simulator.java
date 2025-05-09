@@ -87,6 +87,6 @@ public final class Simulator implements Runnable {
             currentTime = event.time();
             event.run();
         }
-        System.out.println("[DEBUG] Final time: " + currentTime.toMillis() + "ms");
+//        System.out.println("[DEBUG] Final time: " + currentTime.toMillis() + "ms");
     }
 }
