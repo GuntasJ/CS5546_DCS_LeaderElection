@@ -25,19 +25,10 @@ public final class RingBasedDriver {
 
         assignNeighborNodes(nodes);
 
-        for (int i = 0; i < 1_000; i++) {
-            nodes.getFirst().startElection();
-            simulator.run();
-        }
 
-        Duration time = simulator.getCurrentTime();
-        long start = Instant.now().getNano();
         nodes.getFirst().startElection();
         simulator.run();
-        long end = Instant.now().getNano();
 
-        System.out.println("Benchmark: Took " + (end - start) + " ns");
-        System.out.println("Benchmark: Took " + (simulator.getCurrentTime().minus(time).toMillis()) + " ms (simulation)");
     }
 
     private static void assignNeighborNodes(List<RingNode> nodes) {

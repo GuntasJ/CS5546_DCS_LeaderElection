@@ -63,7 +63,7 @@ public interface Node<M extends Message> {
      * @param message The message to be sent
      */
     default void sendMessage(Node<M> destination, M message) {
-//        System.out.println("[DEBUG]: " + this + " is sending message " + message + " to " + destination);
+        System.out.println("[DEBUG]: " + this + " is sending message " + message + " to " + destination);
         Event event = new Event(simulator().getCurrentTime(), () -> destination.receiveMessage(message));
         simulator().addEvent(event);
     }

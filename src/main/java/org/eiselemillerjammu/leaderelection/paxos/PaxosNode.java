@@ -70,6 +70,14 @@ public final class PaxosNode extends AbstractNode<PaxosMessage> {
         waiting = false;
     }
 
+    public void reset() {
+        acceptedReceived = 0;
+        greatestRoundIdentifier = new RoundIdentifier(-1, -1);
+        promisesReceived = 0;
+        canSendAccept = true;
+        waiting = false;
+    }
+
     @Override
     public void startElection() {
         greatestRoundIdentifier = new RoundIdentifier(1, id);

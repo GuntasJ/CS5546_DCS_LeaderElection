@@ -48,6 +48,13 @@ public final class RaftNode extends AbstractNode<RaftMessage> {
         receivedHeartbeat = false;
     }
 
+    public void reset() {
+        term = 0;
+        votes = 0;
+        wonElection = false;
+        receivedHeartbeat = false;
+    }
+
     /**
      * Waits for a future heartbeat
      * If it does not receive a heartbeat, it starts an election.

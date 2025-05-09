@@ -21,6 +21,8 @@ public final class BullyNode extends AbstractNode<BullyMessage> {
      */
     private boolean isWaiting;
 
+    private boolean hasInitiatedElection;
+
     public BullyNode(int id, Simulator simulator) {
         super(id, simulator);
         isWaiting = false;
@@ -35,8 +37,8 @@ public final class BullyNode extends AbstractNode<BullyMessage> {
         simulator.addEvent(new Event(simulator.getCurrentTime().plus(TIMEOUT), () -> {
             if (isWaiting) {
                 simulator.clearEvents();
-//                System.out.println("[DEBUG]: Coordinator is " + this);
-//                System.out.println("[DEBUG]: Time is " + simulator.getCurrentTime().toMillis() + "ms");
+                System.out.println("[DEBUG]: Coordinator is " + this);
+                System.out.println("[DEBUG]: Time is " + simulator.getCurrentTime().toMillis() + "ms");
                 groupNodes.forEach(node -> sendMessage(node, new BullyMessage.Coordinator(this)));
             }
         }));
@@ -65,7 +67,10 @@ public final class BullyNode extends AbstractNode<BullyMessage> {
         switch (message) {
             case BullyMessage.Election(var source) -> {
                 sendMessage(source, new BullyMessage.Answer());
-                startElection();
+                if (!hasInitiatedElection) {
+                    hasInitiatedElection = true;
+                    startElection();
+                }
             }
             case BullyMessage.Answer() -> isWaiting = false;
             case BullyMessage.Coordinator(var source) -> coordinator = source;

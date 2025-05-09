@@ -70,7 +70,7 @@ public final class RingNode extends AbstractNode<RingMessage> {
                     sendMessage(nextNode, message);
                 }
                 else {
-//                    System.out.println("Leader elected with id of " + id);
+                    System.out.println("Leader elected with id of " + id);
                 }
             }
         }
